@@ -1,6 +1,8 @@
 package com.github.zoltar238.PrintStainServer.service;
 
+import com.github.zoltar238.PrintStainServer.dto.ImageDto;
 import com.github.zoltar238.PrintStainServer.dto.ItemDto;
+import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
 import com.github.zoltar238.PrintStainServer.exceptions.ImageProcessingException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
@@ -16,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -38,17 +42,34 @@ public class ItemServiceImp implements ItemService {
             List<ItemDto> itemsDto = new ArrayList<>();
             for (ItemEntity item : items) {
 
-                List<String> base64Images = new ArrayList<>();
+
                 // Process each image in the item and transform it to base64 format
+                List<ImageDto> imageDtos = new ArrayList<>();
                 for (ImageEntity image : item.getImages()) {
-                    base64Images.add(ImageTransformer.transformImageToBase64(image.getUrl()));
+                    imageDtos.add(ImageDto.builder()
+                            .imageId(image.getImageId())
+                            .base64Image(ImageTransformer.transformImageToBase64(image.getUrl()))
+                            .build());
                 }
+
+                // Get poster data
+                PersonDto personDto = PersonDto.builder()
+                        .name(item.getPerson().getName())
+                        .personId(item.getPerson().getPerson_id())
+                        .build();
 
                 // Add item to the list to be transferred
                 ItemDto itemDTO = ItemDto.builder()
                         .itemId(item.getItemId())
                         .name(item.getName())
-                        .base64Images(base64Images)
+                        .description(item.getDescription())
+                        .postDate(item.getPostDate())
+                        .finishDate(item.getFinishDate())
+                        .startDate(item.getStartDate())
+                        .timesUploaded(item.getTimesUploaded())
+                        .shipDate(item.getShipDate())
+                        .person(personDto)
+                        .images(imageDtos)
                         .build();
                 itemsDto.add(itemDTO);
             }

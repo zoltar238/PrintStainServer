@@ -21,7 +21,7 @@ public class ItemDto {
     private Timestamp finishDate;
     private Timestamp shipDate;
     private Integer timesUploaded;
-    private List<String> base64Images;
     private List<String> hashtags;
-    private String poster;
+    private List<ImageDto> images;
+    private PersonDto person;
 }

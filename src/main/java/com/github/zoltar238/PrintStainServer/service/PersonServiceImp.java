@@ -1,6 +1,6 @@
 package com.github.zoltar238.PrintStainServer.service;
 
-import com.github.zoltar238.PrintStainServer.dto.RegisterDto;
+import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
 import com.github.zoltar238.PrintStainServer.exceptions.EmailAlreadyExistsException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
@@ -40,12 +40,12 @@ public class PersonServiceImp implements PersonService {
     }
 
     @Override
-    public ResponseEntity<ResponseApi<String>> registerPerson(RegisterDto registerDTO) {
+    public ResponseEntity<ResponseApi<String>> registerPerson(PersonDto personDTO) {
         try {
             Set<RoleEntity> roles = new HashSet<>();
 
             // look for the role
-            for (String roleName : registerDTO.getRoles()) {
+            for (String roleName : personDTO.getRoles()) {
                 Optional<RoleEntity> roleOpt = roleRepository.findByName(RoleEnum.valueOf(roleName));
                 RoleEntity role;
 
@@ -64,28 +64,28 @@ public class PersonServiceImp implements PersonService {
             }
 
             PersonEntity person = PersonEntity.builder()
-                    .name(registerDTO.getName())
-                    .surname(registerDTO.getSurname())
-                    .username(registerDTO.getUsername())
-                    .password(passwordEncoder.encode(registerDTO.getPassword()))
-                    .email(registerDTO.getEmail())
+                    .name(personDTO.getName())
+                    .surname(personDTO.getSurname())
+                    .username(personDTO.getUsername())
+                    .password(passwordEncoder.encode(personDTO.getPassword()))
+                    .email(personDTO.getEmail())
                     .create_date(new Timestamp(System.currentTimeMillis()))
                     .roles(roles)
                     .build();
 
             personRepository.save(person);
 
-            log.info("User registered successfully with username: {}", registerDTO.getUsername());
+            log.info("User registered successfully with username: {}", personDTO.getUsername());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ResponseBuilder.buildResponse(true, "User registered successfully", null));
 
             // todo: improve error registration error handling
         } catch (DataIntegrityViolationException e) {
             if (e.getMessage().contains("Key (email)") || e.getMessage().contains("person_email_key")) {
-                log.error("User registration error, user with email \"{}\" already exists: {}", registerDTO.getEmail(), e.getMessage(), e);
+                log.error("User registration error, user with email \"{}\" already exists: {}", personDTO.getEmail(), e.getMessage(), e);
                 throw new EmailAlreadyExistsException("This email is already registered. Please use a different one.");
             } else if (e.getMessage().contains("Key (username)") || e.getMessage().contains("person_username_key")) {
-                log.error("User registration error, user with username \"{}\" already exists: {}", registerDTO.getUsername(), e.getMessage(), e);
+                log.error("User registration error, user with username \"{}\" already exists: {}", personDTO.getUsername(), e.getMessage(), e);
                 throw new UsernameAlreadyExistsException("This username is already registered. Please use a different one.");
             } else {
                 log.error("User registration unexpected error: {}", e.getMessage(), e);

@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ResponseBuilder.buildResponse(false,
                         ex.getMessage(),
-                        null));
+                        ex.getMessage()));
     }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
@@ -22,30 +22,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ResponseBuilder.buildResponse(false,
                         ex.getMessage(),
-                        null));
+                        ex.getMessage()));
     }
 
     @ExceptionHandler(UnexpectedException.class)
     public ResponseEntity<Object> handleUnexpectedErrors(UnexpectedException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), null));
+                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), ex.getMessage()));
     }
 
     @ExceptionHandler(ItemNotFoundException.class)
     public ResponseEntity<Object> handleItemNotFound(ItemNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), null));
+                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), ex.getMessage()));
     }
 
     @ExceptionHandler(CostOrPriceInvalidException.class)
     public ResponseEntity<Object> handleCostOrPriceInvalid(CostOrPriceInvalidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), null));
+                .body(ResponseBuilder.buildResponse(false, ex.getMessage(), ex.getMessage()));
     }
 
     @ExceptionHandler(ImageProcessingException.class)
     public ResponseEntity<Object> handleImageProcessingErrors(ImageProcessingException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseBuilder.buildResponse(true, ex.getMessage(), null));
+                .body(ResponseBuilder.buildResponse(true, ex.getMessage(), ex.getMessage()));
     }
 }

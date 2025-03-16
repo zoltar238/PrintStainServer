@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         PersonEntity personRequest;
 
         try {
-            // request is a json -> map entity with username and password from json
+            // request is a JSON -> map entity with username and password from JSON
             personRequest = new ObjectMapper().readValue(request.getInputStream(), PersonEntity.class);
             personEntity = personRepository
                     .findByUsername(personRequest.getUsername())
