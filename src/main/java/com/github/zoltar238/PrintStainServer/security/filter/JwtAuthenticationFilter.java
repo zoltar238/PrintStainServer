@@ -11,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,16 +53,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
             try {
-                ResponseApi<String> errorResponse = ResponseBuilder.buildResponse(false, ResponsesEnum.LOGIN_ERROR.name(), "Incorrect login data");
+                ResponseApi<String> errorResponse = ResponseBuilder.buildResponse(false, "Incorrect login data", "Incorrect login data");
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
-                //ensure answer is sent
                 response.getWriter().flush();
+
+                throw new AuthenticationException("Authentication failed") {};
             } catch (IOException ex) {
                 throw new RuntimeException("Error writing JSON response", ex);
             }
-
-            // Retorna null para indicar que la autenticación falló sin lanzar otra excepción
-            return null;
         }
 
         //generate an authentication token from name and password
@@ -74,7 +73,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
         User user = (User) authResult.getPrincipal();
-        String token = jwtUtils.generateAccessToken(user.getUsername());
+        PersonEntity personEntity = personRepository.findByUsername(user.getUsername()).orElseThrow();
+        String token = jwtUtils.generateAccessToken(personEntity.getPersonId(), user.getUsername());
 
         response.addHeader("Authorization", token);
 

@@ -23,7 +23,7 @@ public class PersonEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long person_id;
+    private Long personId;
 
     @NotBlank
     @Size(max = 80)
@@ -50,7 +50,7 @@ public class PersonEntity {
 
     @jdk.jfr.Timestamp
     @NotNull
-    private Timestamp create_date;
+    private Timestamp createDate;
 
     //fetch eager -> get every single role at once
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

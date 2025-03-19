@@ -13,8 +13,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-
-// mark class as component to be injected
 @Component
 @Slf4j
 public class JwtUtils {
@@ -26,9 +24,10 @@ public class JwtUtils {
     private String expirationTime;
 
     //generate access token
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(Long personId, String username) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("id", personId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationTime)))
                 .signWith(getSignatureKey(), SignatureAlgorithm.HS256)
@@ -50,14 +49,21 @@ public class JwtUtils {
         }
     }
 
-    //obtain username from token
+    //get username from token
     public String getUsernameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
+    // Get id from token
+    public Long getIdFromToken(String token) {
+        return (getClaim(
+                token,
+                claims -> claims.get("id", Long.class)));
+    }
+
     //obtain single claim
     public <T> T getClaim(String token, Function<Claims, T> claimsTFunction) {
-        //obtain all claims first
+        //get all claims first
         Claims claim = extractAllClaims(token);
         return claimsTFunction.apply(claim);
     }

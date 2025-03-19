@@ -48,6 +48,7 @@ public class SaleServiceImp implements SaleService {
                     .price(sale.getPrice())
                     .date(sale.getDate())
                     .itemName(sale.getItem().getName())
+                    .itemId(sale.getItem().getItemId())
                     .build();
 
             allSaleData.add(allSalesDto);

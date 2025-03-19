@@ -8,6 +8,7 @@ import com.github.zoltar238.PrintStainServer.exceptions.ImageProcessingException
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ImageEntity;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ItemEntity;
+import com.github.zoltar238.PrintStainServer.persistence.entity.PersonEntity;
 import com.github.zoltar238.PrintStainServer.persistence.repository.ItemRepository;
 import com.github.zoltar238.PrintStainServer.utils.ImageTransformer;
 import com.github.zoltar238.PrintStainServer.utils.ResponseBuilder;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,9 +29,11 @@ import java.util.stream.Collectors;
 public class ItemServiceImp implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final PersonService personService;
 
-    public ItemServiceImp(ItemRepository itemRepository) {
+    public ItemServiceImp(ItemRepository itemRepository, PersonService personService) {
         this.itemRepository = itemRepository;
+        this.personService = personService;
     }
 
     @Override
@@ -55,7 +59,7 @@ public class ItemServiceImp implements ItemService {
                 // Get poster data
                 PersonDto personDto = PersonDto.builder()
                         .name(item.getPerson().getName())
-                        .personId(item.getPerson().getPerson_id())
+                        .personId(item.getPerson().getPersonId())
                         .build();
 
                 // Add item to the list to be transferred
@@ -64,10 +68,7 @@ public class ItemServiceImp implements ItemService {
                         .name(item.getName())
                         .description(item.getDescription())
                         .postDate(item.getPostDate())
-                        .finishDate(item.getFinishDate())
-                        .startDate(item.getStartDate())
                         .timesUploaded(item.getTimesUploaded())
-                        .shipDate(item.getShipDate())
                         .person(personDto)
                         .images(imageDtos)
                         .build();
@@ -83,6 +84,26 @@ public class ItemServiceImp implements ItemService {
             throw new UnexpectedException("Unexpected error while getting all items");
         }
     }
+
+    @Override
+    public ResponseEntity<?> postItem(Long posterId, ItemDto itemDto) {
+        Optional<PersonEntity> poster = personService.getPersonById(posterId);
+        // Todo: add image porocessing
+        if (poster.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ResponseBuilder.buildResponse(false, "User not found", null));
+        }else {
+            itemRepository.save(ItemEntity.builder()
+                    .itemId(itemDto.getItemId())
+                    .description(itemDto.getDescription())
+                    .name(itemDto.getName())
+                    .timesUploaded(itemDto.getTimesUploaded())
+                    // Add images
+                    .person(poster.get()).build());
+        }
+        return null;
+    }
+
 
     @Override
     public ResponseEntity<ResponseApi<List<ItemDto>>> getAllItemsByUser(String username) {

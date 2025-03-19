@@ -17,9 +17,6 @@ public class ItemDto {
     private String name;
     private String description;
     private Timestamp postDate;
-    private Timestamp startDate;
-    private Timestamp finishDate;
-    private Timestamp shipDate;
     private Integer timesUploaded;
     private List<String> hashtags;
     private List<ImageDto> images;

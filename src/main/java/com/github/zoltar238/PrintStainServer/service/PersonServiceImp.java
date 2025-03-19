@@ -69,7 +69,7 @@ public class PersonServiceImp implements PersonService {
                     .username(personDTO.getUsername())
                     .password(passwordEncoder.encode(personDTO.getPassword()))
                     .email(personDTO.getEmail())
-                    .create_date(new Timestamp(System.currentTimeMillis()))
+                    .createDate(new Timestamp(System.currentTimeMillis()))
                     .roles(roles)
                     .build();
 
@@ -97,14 +97,18 @@ public class PersonServiceImp implements PersonService {
         }
     }
 
-
+    @Override
+    public Optional<PersonEntity> getPersonById(Long id) {
+        return personRepository.findById(id);
+    }
     //Todo: implement user deletion
+
     @Override
     public ResponseEntity<ResponseApi<String>> deleteUser() {
         return null;
     }
-
     //Todo: implement password update
+
     @Override
     public ResponseEntity<ResponseApi<String>> updatePassword() {
         return null;

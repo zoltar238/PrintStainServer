@@ -36,16 +36,6 @@ public class ItemEntity {
     @NotBlank
     private Timestamp postDate;
 
-    @jdk.jfr.Timestamp
-    private Timestamp startDate;
-
-    @jdk.jfr.Timestamp
-    private Timestamp finishDate;
-
-
-    @jdk.jfr.Timestamp
-    private Timestamp shipDate;
-
     @NotBlank
     private Integer timesUploaded;
 
