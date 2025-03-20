@@ -18,5 +18,5 @@ public interface ItemService {
 
     ResponseEntity<?> modifyItemById(Long id, ItemDto itemDto);
 
-    ResponseEntity<?> postItem(Long posterId, ItemDto itemDto);
+    ResponseEntity<ResponseApi<ItemDto>> postItem(Long posterId, ItemDto itemDto);
 }

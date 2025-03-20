@@ -2,11 +2,15 @@ package com.github.zoltar238.PrintStainServer.persistence.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DialectOverride;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -33,10 +37,10 @@ public class ItemEntity {
     private String description;
 
     @jdk.jfr.Timestamp
-    @NotBlank
+    @NotNull
     private Timestamp postDate;
 
-    @NotBlank
+    @ColumnDefault("1")
     private Integer timesUploaded;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)

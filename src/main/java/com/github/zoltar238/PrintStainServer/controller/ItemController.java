@@ -37,7 +37,7 @@ public class ItemController {
 
     @PostMapping("/postItem")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> postItem(@NotNull HttpServletRequest request, @NotNull @RequestBody @Valid ItemDto itemDto) {
+    public ResponseEntity<ResponseApi<ItemDto>> postItem(@NotNull HttpServletRequest request, @NotNull @RequestBody @Valid ItemDto itemDto) {
         // Get the user id from the token
         String tokenHeader = request.getHeader("Authorization");
         if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {

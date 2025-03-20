@@ -6,6 +6,7 @@ import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
 import com.github.zoltar238.PrintStainServer.exceptions.ImageProcessingException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
+import com.github.zoltar238.PrintStainServer.exceptions.UserNotFoundException;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ImageEntity;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ItemEntity;
 import com.github.zoltar238.PrintStainServer.persistence.entity.PersonEntity;
@@ -18,11 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,10 +31,12 @@ public class ItemServiceImp implements ItemService {
 
     private final ItemRepository itemRepository;
     private final PersonService personService;
+    private final ImageService imageService;
 
-    public ItemServiceImp(ItemRepository itemRepository, PersonService personService) {
+    public ItemServiceImp(ItemRepository itemRepository, PersonService personService, ImageService imageService) {
         this.itemRepository = itemRepository;
         this.personService = personService;
+        this.imageService = imageService;
     }
 
     @Override
@@ -86,24 +89,64 @@ public class ItemServiceImp implements ItemService {
     }
 
     @Override
-    public ResponseEntity<?> postItem(Long posterId, ItemDto itemDto) {
+    public ResponseEntity<ResponseApi<ItemDto>> postItem(Long posterId, ItemDto itemDto) {
+        // Get the user from the database
         Optional<PersonEntity> poster = personService.getPersonById(posterId);
-        // Todo: add image porocessing
         if (poster.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseBuilder.buildResponse(false, "User not found", null));
-        }else {
-            itemRepository.save(ItemEntity.builder()
-                    .itemId(itemDto.getItemId())
-                    .description(itemDto.getDescription())
-                    .name(itemDto.getName())
-                    .timesUploaded(itemDto.getTimesUploaded())
-                    // Add images
-                    .person(poster.get()).build());
+            log.warn("User with id {} not found", posterId);
+            throw new UserNotFoundException("User not found");
         }
-        return null;
-    }
 
+        // Save item to the database
+        ItemEntity item = itemRepository.save(ItemEntity.builder()
+                .itemId(itemDto.getItemId())
+                .description(itemDto.getDescription())
+                .name(itemDto.getName())
+                .postDate(Timestamp.from(Instant.now()))
+                .person(poster.get()).build());
+
+        // Save images to disk and database
+        List<ImageEntity> images = new ArrayList<>();
+        for (ImageDto imageDto : itemDto.getImages()) {
+            try {
+                String url = "src/main/resources/images/" + System.currentTimeMillis() + posterId + itemDto.getName() + ".jpg";
+                ImageTransformer.saveImageToDisk(url, imageDto.getBase64Image());
+                ImageEntity imageEntity = ImageEntity.builder()
+                        .url(url)
+                        .link("empty")
+                        .item(item)
+                        .build();
+                images.add(imageEntity);
+            } catch (IOException e) {
+                log.error("Error saving image to disk: {}", e.getMessage(), e);
+                throw new ImageProcessingException("Unexpected error while saving images to disk");
+            }
+        }
+        imageService.saveImages(images);
+
+        // Update item with images
+        item.setImages(images);
+        itemRepository.save(item);
+
+        itemDto.setItemId(item.getItemId());
+        itemDto.setPostDate(item.getPostDate());
+        itemDto.setTimesUploaded(item.getTimesUploaded());
+        itemDto.setPerson(PersonDto.builder()
+                .name(poster.get().getName())
+                .personId(poster.get().getPersonId())
+                .build());
+        for (int i = 0; i < itemDto.getImages().size(); i++) {
+            itemDto.getImages().get(i).setImageId(item.getImages().get(i).getImageId());
+            try {
+                itemDto.getImages().get(i).setBase64Image(ImageTransformer.transformImageToBase64(item.getImages().get(i).getUrl()));
+            } catch (IOException e) {
+                log.error("Error processing images: {}", e.getMessage(), e);
+                throw new ImageProcessingException("Error processing images");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseBuilder.buildResponse(true, "Item saved successfully", itemDto));
+    }
 
     @Override
     public ResponseEntity<ResponseApi<List<ItemDto>>> getAllItemsByUser(String username) {

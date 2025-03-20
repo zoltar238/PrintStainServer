@@ -15,4 +15,14 @@ public class ImageTransformer {
         byte[] imageByte = Files.readAllBytes(imagePath);
         return Base64.getEncoder().encodeToString(imageByte);
     }
+
+    public static byte[] transformBase64ToImage(String base64) {
+        return Base64.getDecoder().decode(base64);
+    }
+
+    public static void saveImageToDisk(String path, String base64) throws IOException {
+        byte[] imageByte = transformBase64ToImage(base64);
+        Path imagePath = Paths.get(path);
+        Files.write(imagePath, imageByte);
+    }
 }
