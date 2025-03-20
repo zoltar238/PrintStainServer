@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/healthcheck", "person/register").permitAll()
-                        .requestMatchers("/item/getAllItems", "sale/newSale", "/item/postItem").hasRole("ADMIN")
+                        .requestMatchers("/item/getAllItems", "sale/newSale", "/item/postItem", "/item/deleteItems").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 //.formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                 .sessionManagement(session -> session

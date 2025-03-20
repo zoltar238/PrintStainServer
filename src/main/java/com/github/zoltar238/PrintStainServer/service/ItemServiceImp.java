@@ -148,6 +148,14 @@ public class ItemServiceImp implements ItemService {
                 .body(ResponseBuilder.buildResponse(true, "Item saved successfully", itemDto));
     }
 
+
+    @Override
+    public ResponseEntity<ResponseApi<String>> deleteItems(List<ItemDto> itemDtos) {
+        itemRepository.deleteAllById(itemDtos.stream().map(ItemDto::getItemId).toList());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseBuilder.buildResponse(true, itemDtos.size() > 1 ? "Items deleted successfully" : "Item deleted successfully", itemDtos.size() > 1 ? "Items deleted successfully" : "Item deleted successfully"));
+    }
+
     @Override
     public ResponseEntity<ResponseApi<List<ItemDto>>> getAllItemsByUser(String username) {
         return null;

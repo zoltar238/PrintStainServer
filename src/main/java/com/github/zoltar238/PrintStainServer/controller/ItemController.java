@@ -40,12 +40,15 @@ public class ItemController {
     public ResponseEntity<ResponseApi<ItemDto>> postItem(@NotNull HttpServletRequest request, @NotNull @RequestBody @Valid ItemDto itemDto) {
         // Get the user id from the token
         String tokenHeader = request.getHeader("Authorization");
-        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
-            String token = tokenHeader.substring(7);
-            Long posterId = jwtUtils.getIdFromToken(token);
-            return itemService.postItem(posterId, itemDto);
-        } else {
-            return null;
-        }
+        String token = tokenHeader.substring(7);
+        Long posterId = jwtUtils.getIdFromToken(token);
+        return itemService.postItem(posterId, itemDto);
+    }
+
+
+    @DeleteMapping("/deleteItems")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<String>> deleteItems(@NotNull @RequestBody @Valid List<ItemDto> itemDtos) {
+        return itemService.deleteItems(itemDtos);
     }
 }
