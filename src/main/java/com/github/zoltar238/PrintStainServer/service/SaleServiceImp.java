@@ -57,12 +57,12 @@ public class SaleServiceImp implements SaleService {
         log.info("All sales retrieved successfully");
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseBuilder.buildResponse(true,
-                        ResponsesEnum.OK.toString(),
+                        "All sales retrieved successfully",
                         allSaleData));
     }
 
     @Override
-    public ResponseEntity<ResponseApi<String>> createNewSale(SaleCreationDto saleCreationDto) {
+    public ResponseEntity<ResponseApi<Long>> createNewSale(SaleCreationDto saleCreationDto) {
         // Find item by id
         Optional<ItemEntity> item = itemRepository.findById(saleCreationDto.getItemId());
 
@@ -93,14 +93,14 @@ public class SaleServiceImp implements SaleService {
                     .item(item.get())
                     .build();
 
-            saleRepository.save(saleEntity);
+            SaleEntity sale = saleRepository.save(saleEntity);
 
             // Return success response
             log.info("Sale created successfully");
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ResponseBuilder.buildResponse(true,
                             "Sale created successfully",
-                            "Sale created successfully"));
+                            sale.getSaleId()));
         } catch (Exception e) {
             // Handle unexpected exceptions
             log.error("An unexpected error occurred: {}", e.getMessage(), e);

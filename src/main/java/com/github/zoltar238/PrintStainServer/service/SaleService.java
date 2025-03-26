@@ -13,7 +13,7 @@ public interface SaleService {
 
     ResponseEntity<ResponseApi<List<AllSalesDto>>> getAllSales();
 
-    ResponseEntity<ResponseApi<String>> createNewSale(SaleCreationDto saleCreationDto);
+    ResponseEntity<ResponseApi<Long>> createNewSale(SaleCreationDto saleCreationDto);
 
     ResponseEntity<ResponseApi<String>> deleteSale(Long saleId);
 

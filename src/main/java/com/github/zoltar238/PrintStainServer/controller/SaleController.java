@@ -38,7 +38,7 @@ public class SaleController {
 
     @PostMapping("/newSale")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseApi<String>> createNewSale(@Valid @RequestBody SaleCreationDto saleCreationDto) {
+    public ResponseEntity<ResponseApi<Long>> createNewSale(@Valid @RequestBody SaleCreationDto saleCreationDto) {
         log.info("Attempting to create a new sale");
         return saleServiceImp.createNewSale(saleCreationDto);
     }
