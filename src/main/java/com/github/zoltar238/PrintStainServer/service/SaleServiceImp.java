@@ -2,7 +2,6 @@ package com.github.zoltar238.PrintStainServer.service;
 
 import com.github.zoltar238.PrintStainServer.dto.AllSalesDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
-import com.github.zoltar238.PrintStainServer.dto.ResponsesEnum;
 import com.github.zoltar238.PrintStainServer.dto.SaleCreationDto;
 import com.github.zoltar238.PrintStainServer.exceptions.CostOrPriceInvalidException;
 import com.github.zoltar238.PrintStainServer.exceptions.ItemNotFoundException;
@@ -110,7 +109,20 @@ public class SaleServiceImp implements SaleService {
 
     @Override
     public ResponseEntity<ResponseApi<String>> deleteSale(Long saleId) {
-        return null;
+        // Check if sale exists
+        Optional<SaleEntity> sale = saleRepository.findById(saleId);
+        if (sale.isEmpty()) {
+            log.error("Sale with ID {} not found", saleId);
+            throw new ItemNotFoundException("Sale with ID " + saleId + " not found");
+        } else {
+            // Delete sale
+            saleRepository.deleteById(saleId);
+            log.info("Sale with ID {} deleted successfully", saleId);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ResponseBuilder.buildResponse(true,
+                            "Sale deleted successfully",
+                            "Sale deleted successfully"));
+        }
     }
 
     @Override

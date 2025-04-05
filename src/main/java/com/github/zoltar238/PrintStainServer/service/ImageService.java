@@ -12,5 +12,5 @@ public interface ImageService {
 
     void saveImages(List<ImageEntity> image);
 
-    void updateOrInsertImages(ItemEntity item,  List<ImageDto> imageDtos);
+    void updateOrInsertImages(ItemEntity item, List<ImageDto> imageDtos);
 }

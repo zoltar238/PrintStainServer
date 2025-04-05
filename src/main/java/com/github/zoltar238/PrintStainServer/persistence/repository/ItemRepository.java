@@ -1,9 +1,7 @@
 package com.github.zoltar238.PrintStainServer.persistence.repository;
 
 import com.github.zoltar238.PrintStainServer.persistence.entity.ItemEntity;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

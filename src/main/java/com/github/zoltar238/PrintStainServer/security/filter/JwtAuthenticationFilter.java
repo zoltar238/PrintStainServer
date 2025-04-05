@@ -2,7 +2,6 @@ package com.github.zoltar238.PrintStainServer.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
-import com.github.zoltar238.PrintStainServer.dto.ResponsesEnum;
 import com.github.zoltar238.PrintStainServer.persistence.entity.PersonEntity;
 import com.github.zoltar238.PrintStainServer.persistence.repository.PersonRepository;
 import com.github.zoltar238.PrintStainServer.security.jwt.JwtUtils;
@@ -11,7 +10,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,7 +55,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
                 response.getWriter().flush();
 
-                throw new AuthenticationException("Authentication failed") {};
+                throw new AuthenticationException("Authentication failed") {
+                };
             } catch (IOException ex) {
                 throw new RuntimeException("Error writing JSON response", ex);
             }
