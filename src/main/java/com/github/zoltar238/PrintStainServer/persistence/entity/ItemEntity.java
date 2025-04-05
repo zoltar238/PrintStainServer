@@ -46,7 +46,7 @@ public class ItemEntity {
     @OneToMany(mappedBy = "item", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private Set<SaleEntity> sales;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ImageEntity> images;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)

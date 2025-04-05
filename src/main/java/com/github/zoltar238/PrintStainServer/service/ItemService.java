@@ -23,4 +23,6 @@ public interface ItemService {
     ResponseEntity<ResponseApi<ItemDto>> postItem(Long posterId, ItemDto itemDto);
 
     ResponseEntity<ResponseApi<String>> deleteItems(@NotNull @Valid List<ItemDto> itemDtos);
+
+    ResponseEntity<ResponseApi<ItemDto>> updateItem(@NotNull @Valid ItemDto itemDto);
 }

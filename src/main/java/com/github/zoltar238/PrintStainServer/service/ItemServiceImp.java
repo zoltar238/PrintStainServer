@@ -5,6 +5,7 @@ import com.github.zoltar238.PrintStainServer.dto.ItemDto;
 import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
 import com.github.zoltar238.PrintStainServer.exceptions.ImageProcessingException;
+import com.github.zoltar238.PrintStainServer.exceptions.ItemNotFoundException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
 import com.github.zoltar238.PrintStainServer.exceptions.UserNotFoundException;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ImageEntity;
@@ -109,7 +110,7 @@ public class ItemServiceImp implements ItemService {
         List<ImageEntity> images = new ArrayList<>();
         for (ImageDto imageDto : itemDto.getImages()) {
             try {
-                String url = "src/main/resources/images/" + System.currentTimeMillis() + posterId + itemDto.getName() + ".jpg";
+                String url = "src/main/resources/images/" + System.currentTimeMillis() + ".jpg";
                 ImageTransformer.saveImageToDisk(url, imageDto.getBase64Image());
                 ImageEntity imageEntity = ImageEntity.builder()
                         .url(url)
@@ -154,6 +155,44 @@ public class ItemServiceImp implements ItemService {
         itemRepository.deleteAllById(itemDtos.stream().map(ItemDto::getItemId).toList());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseBuilder.buildResponse(true, itemDtos.size() > 1 ? "Items deleted successfully" : "Item deleted successfully", itemDtos.size() > 1 ? "Items deleted successfully" : "Item deleted successfully"));
+    }
+
+    @Override
+    public ResponseEntity<ResponseApi<ItemDto>> updateItem(ItemDto itemDto) {
+        Optional<ItemEntity> item = itemRepository.findById(itemDto.getItemId());
+        if (item.isEmpty()) {
+            log.warn("Item with id {} not found", itemDto.getItemId());
+            throw new ItemNotFoundException("Item not found");
+        } else {
+            ItemEntity itemEntity = item.get();
+            itemEntity.setName(itemDto.getName());
+            itemEntity.setDescription(itemDto.getDescription());
+
+            // Update images
+            imageService.updateOrInsertImages(item.get(), itemDto.getImages());
+
+            // Update item with new images and description
+            itemRepository.save(itemEntity);
+
+            // Reload item from the database to get updated images
+//            item = itemRepository.findByIdWithImages(itemDto.getItemId());
+            itemDto.getImages().clear();
+
+            // Process each image in the item and transform it to base64 format
+            for (ImageEntity image : item.get().getImages()) {
+                try {
+                    itemDto.getImages().add(ImageDto.builder()
+                            .imageId(image.getImageId())
+                            .base64Image(ImageTransformer.transformImageToBase64(image.getUrl()))
+                            .build());
+                } catch (IOException e) {
+                    log.error("Error processing images: {}", e.getMessage(), e);
+                    throw new ImageProcessingException("Error processing images");
+                }
+            }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ResponseBuilder.buildResponse(true, "Item updated successfully", itemDto));
+        }
     }
 
     @Override

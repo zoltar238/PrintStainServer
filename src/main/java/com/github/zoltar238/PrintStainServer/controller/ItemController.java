@@ -45,10 +45,15 @@ public class ItemController {
         return itemService.postItem(posterId, itemDto);
     }
 
-
     @DeleteMapping("/deleteItems")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseApi<String>> deleteItems(@NotNull @RequestBody @Valid List<ItemDto> itemDtos) {
         return itemService.deleteItems(itemDtos);
+    }
+
+    @PutMapping("/updateItem")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<ItemDto>> updateItem(@NotNull @RequestBody @Valid ItemDto itemDto) {
+        return itemService.updateItem(itemDto);
     }
 }
