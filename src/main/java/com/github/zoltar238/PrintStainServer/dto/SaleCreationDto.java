@@ -1,6 +1,5 @@
 package com.github.zoltar238.PrintStainServer.dto;
 
-import com.github.zoltar238.PrintStainServer.persistence.entity.TaskStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
