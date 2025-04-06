@@ -8,6 +8,7 @@ import com.github.zoltar238.PrintStainServer.exceptions.ItemNotFoundException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
 import com.github.zoltar238.PrintStainServer.persistence.entity.ItemEntity;
 import com.github.zoltar238.PrintStainServer.persistence.entity.SaleEntity;
+import com.github.zoltar238.PrintStainServer.persistence.entity.TaskStatusEnum;
 import com.github.zoltar238.PrintStainServer.persistence.repository.ItemRepository;
 import com.github.zoltar238.PrintStainServer.persistence.repository.SaleRepository;
 import com.github.zoltar238.PrintStainServer.utils.ResponseBuilder;
@@ -47,6 +48,7 @@ public class SaleServiceImp implements SaleService {
                     .price(sale.getPrice())
                     .date(sale.getDate())
                     .itemName(sale.getItem().getName())
+                    .status(sale.getStatus().name())
                     .itemId(sale.getItem().getItemId())
                     .build();
 
@@ -127,6 +129,44 @@ public class SaleServiceImp implements SaleService {
 
     @Override
     public ResponseEntity<ResponseApi<String>> updateSale(SaleCreationDto saleCreationDto) {
-        return null;
+        // Check if sale exists
+        Optional<SaleEntity> sale = saleRepository.findById(saleCreationDto.getSaleId());
+        if (sale.isEmpty()) {
+            log.error("Sale with ID {} not found", saleCreationDto.getSaleId());
+            throw new ItemNotFoundException("Sale with ID " + saleCreationDto.getSaleId() + " not found");
+        } else {
+            // Validate cost and price
+            if (((saleCreationDto.getCost() == null) || (saleCreationDto.getCost().longValue() <= 0)) || (saleCreationDto.getPrice() == null || saleCreationDto.getPrice().longValue() <= 0)) {
+                log.error("Cost or Price not found or invalid");
+                throw new CostOrPriceInvalidException("Cost or Price not found or invalid");
+            }
+
+            // Cost cannot be greater than Price
+            if (saleCreationDto.getCost().compareTo(saleCreationDto.getPrice()) > 0) {
+                log.error("Cost cannot be greater than Price");
+                throw new CostOrPriceInvalidException("Cost cannot be greater than Price");
+            }
+
+            try {
+                // Update sale
+                SaleEntity saleEntity = sale.get();
+                saleEntity.setCost(saleCreationDto.getCost());
+                saleEntity.setPrice(saleCreationDto.getPrice());
+                saleEntity.setDate(saleCreationDto.getDate());
+                saleEntity.setStatus(TaskStatusEnum.valueOf(saleCreationDto.getStatus()));
+                saleRepository.save(saleEntity);
+
+                // Return success response
+                log.info("Sale updated successfully");
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(ResponseBuilder.buildResponse(true,
+                                "Sale updated successfully",
+                                "Sale updated successfully"));
+            } catch (Exception e) {
+                // Handle unexpected exceptions
+                log.error("An unexpected error occurred: {}", e.getMessage(), e);
+                throw new UnexpectedException("An unexpected error occurred while updating the sale");
+            }
+        }
     }
 }

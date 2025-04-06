@@ -36,6 +36,9 @@ public class SaleEntity {
     @Digits(integer = 4, fraction = 2)
     private BigDecimal price;
 
+    @Enumerated(EnumType.STRING)
+    private TaskStatusEnum status = TaskStatusEnum.IN_PROGRESS;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private ItemEntity item;

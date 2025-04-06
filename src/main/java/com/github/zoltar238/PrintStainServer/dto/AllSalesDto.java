@@ -18,5 +18,6 @@ public class AllSalesDto {
     private BigDecimal cost;
     private BigDecimal price;
     private String itemName;
+    private String status;
     private Long itemId;
 }

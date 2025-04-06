@@ -45,4 +45,11 @@ public class SaleController {
         log.info("Attempting to delete sale with id: {}", saleId);
         return saleServiceImp.deleteSale(saleId);
     }
+
+    @PutMapping("/updateSale")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<String>> updateSale(@Valid @RequestBody SaleCreationDto saleCreationDto) {
+        log.info("Attempting to update sale with id: {}", saleCreationDto.getSaleId());
+        return saleServiceImp.updateSale(saleCreationDto);
+    }
 }
