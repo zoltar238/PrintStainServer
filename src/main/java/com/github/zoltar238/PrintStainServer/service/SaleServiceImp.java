@@ -91,6 +91,7 @@ public class SaleServiceImp implements SaleService {
                     .cost(saleCreationDto.getCost())
                     .price(saleCreationDto.getPrice())
                     .date(saleCreationDto.getDate())
+                    .status(TaskStatusEnum.valueOf(saleCreationDto.getStatus()))
                     .item(item.get())
                     .build();
 

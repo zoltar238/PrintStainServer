@@ -56,4 +56,10 @@ public class ItemController {
     public ResponseEntity<ResponseApi<ItemDto>> updateItem(@NotNull @RequestBody @Valid ItemDto itemDto) {
         return itemService.updateItem(itemDto);
     }
+
+//    @PostMapping("/postFiles")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ResponseEntity<ResponseApi<String>> postFiles(@NotNull @RequestBody @Valid List<MultipartFile> files) {
+//        return itemService.postFiles(files);
+//    }
 }
