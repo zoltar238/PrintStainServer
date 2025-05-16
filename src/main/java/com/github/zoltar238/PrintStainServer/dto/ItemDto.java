@@ -16,6 +16,7 @@ public class ItemDto {
     private Long itemId;
     private String name;
     private String description;
+    private String fileStructure;
     private Timestamp postDate;
     private Integer timesUploaded;
     private List<String> hashtags;

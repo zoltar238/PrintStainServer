@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,15 +15,15 @@ public interface ItemService {
 
     ResponseEntity<ResponseApi<List<ItemDto>>> getAllItems();
 
-    ResponseEntity<ResponseApi<List<ItemDto>>> getAllItemsByUser(String username);
-
-    ResponseEntity<?> deleteItemById(Long id);
-
-    ResponseEntity<?> modifyItemById(Long id, ItemDto itemDto);
-
     ResponseEntity<ResponseApi<ItemDto>> postItem(Long posterId, ItemDto itemDto);
 
     ResponseEntity<ResponseApi<String>> deleteItems(@NotNull @Valid List<ItemDto> itemDtos);
 
     ResponseEntity<ResponseApi<ItemDto>> updateItem(@NotNull @Valid ItemDto itemDto);
+
+    ResponseEntity<ResponseApi<String>> uploadFiles(MultipartFile file, Long itemId, String fileStructure);
+
+    ResponseEntity<?> downloadFiles(Long itemId);
+
+    ResponseEntity<ResponseApi<String>> deleteFiles(Long itemId);
 }

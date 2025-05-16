@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,9 +58,21 @@ public class ItemController {
         return itemService.updateItem(itemDto);
     }
 
-//    @PostMapping("/postFiles")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<ResponseApi<String>> postFiles(@NotNull @RequestBody @Valid List<MultipartFile> files) {
-//        return itemService.postFiles(files);
-//    }
+    @PostMapping("/upload")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<String>> uploadFiles(@RequestParam("file") MultipartFile file, @RequestParam("itemId") Long itemId, @RequestParam("fileStructure") String fileStructure) {
+        return itemService.uploadFiles(file, itemId, fileStructure);
+    }
+
+    @GetMapping("/download")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> downloadFiles(@ RequestParam("itemId") Long itemId){
+        return itemService.downloadFiles(itemId);
+    }
+
+    @DeleteMapping("/deleteFiles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<String>> deleteFiles(@RequestParam("itemId") Long itemId){
+        return itemService.deleteFiles(itemId);
+    }
 }

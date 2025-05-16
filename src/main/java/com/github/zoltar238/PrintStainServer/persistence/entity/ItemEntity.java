@@ -41,6 +41,11 @@ public class ItemEntity {
     @ColumnDefault("1")
     private Integer timesUploaded;
 
+    private String filesUrl;
+
+    @Size(max = 2000000)
+    private String fileStructure;
+
     @OneToMany(mappedBy = "item", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private Set<SaleEntity> sales;
 

@@ -15,11 +15,20 @@ import com.github.zoltar238.PrintStainServer.persistence.repository.ItemReposito
 import com.github.zoltar238.PrintStainServer.utils.ImageTransformer;
 import com.github.zoltar238.PrintStainServer.utils.ResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,6 +42,9 @@ public class ItemServiceImp implements ItemService {
     private final ItemRepository itemRepository;
     private final PersonService personService;
     private final ImageService imageService;
+
+    @Value("${downloads.storage.location}")
+    private String downloadPath;
 
     public ItemServiceImp(ItemRepository itemRepository, PersonService personService, ImageService imageService) {
         this.itemRepository = itemRepository;
@@ -70,6 +82,7 @@ public class ItemServiceImp implements ItemService {
                 ItemDto itemDTO = ItemDto.builder()
                         .itemId(item.getItemId())
                         .name(item.getName())
+                        .fileStructure(item.getFileStructure())
                         .description(item.getDescription())
                         .postDate(item.getPostDate())
                         .timesUploaded(item.getTimesUploaded())
@@ -175,7 +188,6 @@ public class ItemServiceImp implements ItemService {
             itemRepository.save(itemEntity);
 
             // Reload item from the database to get updated images
-//            item = itemRepository.findByIdWithImages(itemDto.getItemId());
             itemDto.getImages().clear();
 
             // Process each image in the item and transform it to base64 format
@@ -196,17 +208,88 @@ public class ItemServiceImp implements ItemService {
     }
 
     @Override
-    public ResponseEntity<ResponseApi<List<ItemDto>>> getAllItemsByUser(String username) {
-        return null;
+    public ResponseEntity<ResponseApi<String>> uploadFiles(MultipartFile file, Long itemId, String fileStructure) {
+        try {
+            Optional<ItemEntity> item = itemRepository.findById(itemId);
+            if (item.isEmpty()) {
+                log.warn("Item with id {} not found", itemId);
+                throw new ItemNotFoundException("Item not found");
+            } else {
+                String previousFiles = item.get().getFilesUrl();
+                if (previousFiles != null && new File(previousFiles).exists()) {
+                        new File(previousFiles).delete();
+                    }
+
+                // Update item
+                item.get().setFileStructure(fileStructure);
+                item.get().setFilesUrl(downloadPath + "/" + file.getOriginalFilename());
+                itemRepository.save(item.get());
+
+                // save files locally
+                file.transferTo(new java.io.File(downloadPath + "/" + file.getOriginalFilename()));
+
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(ResponseBuilder.buildResponse(true, "Files uploaded successfully", "Files uploaded successfully"));
+            }
+        } catch (Exception e) {
+            log.error("Unexpected error while uploading files: {}", e.getMessage(), e);
+            throw new UnexpectedException("Unexpected error while uploading files");
+        }
     }
 
     @Override
-    public ResponseEntity<?> deleteItemById(Long id) {
-        return null;
+    public ResponseEntity<?> downloadFiles(Long itemId) {
+        try {
+            Optional<ItemEntity> item = itemRepository.findById(itemId);
+            if (item.isEmpty()) {
+                log.warn("Item with id {} not found", itemId);
+                throw new ItemNotFoundException("Item not found");
+            } else {
+                Path path = Paths.get(item.get().getFilesUrl());
+                Resource resource = new UrlResource(path.toUri());
+
+                String contentType = "application/octet-stream";
+                String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
+
+                return ResponseEntity
+                        .ok()
+                        .contentType(MediaType.parseMediaType(contentType)).
+                        header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                        .body(resource);
+            }
+        } catch (Exception e) {
+            log.error("Unexpected error while downloading file: {}", e.getMessage(), e);
+            throw new UnexpectedException("Unexpected error while downloading file");
+        }
     }
 
     @Override
-    public ResponseEntity<?> modifyItemById(Long id, ItemDto itemDto) {
-        return null;
+    public ResponseEntity<ResponseApi<String>> deleteFiles(Long itemId) {
+        try {
+            Optional<ItemEntity> item = itemRepository.findById(itemId);
+            if (item.isEmpty()) {
+                log.warn("Item with id {} not found", itemId);
+                throw new ItemNotFoundException("Item not found");
+            } else {
+
+                // Delete file from storage
+                File file = new File(item.get().getFilesUrl());
+                if (file.exists()) {
+                    file.delete();
+                }
+
+                // Delete file data stored in database
+                item.get().setFilesUrl(null);
+                item.get().setFileStructure(null);
+                itemRepository.save(item.get());
+
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(ResponseBuilder.buildResponse(true, "Files deleted successfully", "Files deleted successfully"));
+            }
+        } catch (Exception e) {
+            log.error("Unexpected error while deleting item files: {}", e.getMessage(), e);
+            throw new UnexpectedException("Unexpected error while deleting item files");
+        }
     }
+
 }
