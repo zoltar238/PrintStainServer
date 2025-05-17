@@ -66,13 +66,13 @@ public class ItemController {
 
     @GetMapping("/download")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> downloadFiles(@ RequestParam("itemId") Long itemId){
+    public ResponseEntity<?> downloadFiles(@RequestParam("itemId") Long itemId) {
         return itemService.downloadFiles(itemId);
     }
 
     @DeleteMapping("/deleteFiles")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseApi<String>> deleteFiles(@RequestParam("itemId") Long itemId){
+    public ResponseEntity<ResponseApi<String>> deleteFiles(@RequestParam("itemId") Long itemId) {
         return itemService.deleteFiles(itemId);
     }
 }

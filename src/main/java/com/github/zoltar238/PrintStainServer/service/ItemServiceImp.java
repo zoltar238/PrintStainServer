@@ -217,8 +217,8 @@ public class ItemServiceImp implements ItemService {
             } else {
                 String previousFiles = item.get().getFilesUrl();
                 if (previousFiles != null && new File(previousFiles).exists()) {
-                        new File(previousFiles).delete();
-                    }
+                    new File(previousFiles).delete();
+                }
 
                 // Update item
                 item.get().setFileStructure(fileStructure);
