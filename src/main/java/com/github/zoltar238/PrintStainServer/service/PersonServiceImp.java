@@ -4,6 +4,7 @@ import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
 import com.github.zoltar238.PrintStainServer.exceptions.EmailAlreadyExistsException;
 import com.github.zoltar238.PrintStainServer.exceptions.UnexpectedException;
+import com.github.zoltar238.PrintStainServer.exceptions.UserNotFoundException;
 import com.github.zoltar238.PrintStainServer.exceptions.UsernameAlreadyExistsException;
 import com.github.zoltar238.PrintStainServer.persistence.entity.PersonEntity;
 import com.github.zoltar238.PrintStainServer.persistence.entity.RoleEntity;
@@ -41,6 +42,8 @@ public class PersonServiceImp implements PersonService {
 
     @Override
     public ResponseEntity<ResponseApi<String>> registerPerson(PersonDto personDTO) {
+        log.info("Attempting registration of new user with username: {}", personDTO.getUsername());
+
         try {
             Set<RoleEntity> roles = new HashSet<>();
 
@@ -61,6 +64,11 @@ public class PersonServiceImp implements PersonService {
                     roleRepository.save(role);
                 }
                 roles.add(role);
+            }
+
+            // Check if the username was used by a deleted account
+            if (personRepository.findByPreDeleteUsername(personDTO.getUsername()).isPresent()) {
+                throw new DataIntegrityViolationException("Key (username) already exists in database");
             }
 
             PersonEntity person = PersonEntity.builder()
@@ -101,11 +109,28 @@ public class PersonServiceImp implements PersonService {
     public Optional<PersonEntity> getPersonById(Long id) {
         return personRepository.findById(id);
     }
-    //Todo: implement user deletion
 
     @Override
-    public ResponseEntity<ResponseApi<String>> deleteUser() {
-        return null;
+    public ResponseEntity<ResponseApi<String>> deleteUser(String username) {
+        log.info("Attempting to delete user with username: {}", username);
+
+        try {
+            // Delete user
+            PersonEntity person = personRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+            person.setPreDeleteUsername(person.getUsername());
+            person.setUsername("deleted_user_" + username);
+            person.setEmail("deleted_user_" + username + "@deleted.com");
+            person.setPassword("deleted_user_" + username);
+            person.setIsActive(false);
+            personRepository.save(person);
+
+            log.info("Successfully deleted user: {}", person.getPreDeleteUsername());
+
+            return ResponseEntity.ok(new ResponseApi<>(true, "User deleted successfully", "User deleted successfully"));
+        } catch (Exception e) {
+            log.error("Unexpected error deleting user with username : {} {}", username,  e.getMessage(), e);
+            throw new UnexpectedException("Unexpected error while deleting user");
+        }
     }
     //Todo: implement password update
 

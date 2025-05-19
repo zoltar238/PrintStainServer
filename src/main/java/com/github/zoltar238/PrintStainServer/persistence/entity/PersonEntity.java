@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jdk.jfr.BooleanFlag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,10 +26,15 @@ public class PersonEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long personId;
 
+    @BooleanFlag
+    private Boolean isActive;
+
+    @Size(max = 80)
+    private String preDeleteUsername;
+
     @NotBlank
     @Size(max = 80)
     private String name;
-
 
     @NotBlank
     @Size(max = 80)

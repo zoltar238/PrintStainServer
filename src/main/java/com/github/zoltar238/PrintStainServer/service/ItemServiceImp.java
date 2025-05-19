@@ -76,6 +76,7 @@ public class ItemServiceImp implements ItemService {
                 PersonDto personDto = PersonDto.builder()
                         .name(item.getPerson().getName())
                         .personId(item.getPerson().getPersonId())
+                        .isActive(item.getPerson().getIsActive())
                         .build();
 
                 // Add item to the list to be transferred

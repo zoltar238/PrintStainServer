@@ -14,6 +14,7 @@ import java.util.Set;
 public class PersonDto {
 
     private Long personId;
+    private Boolean isActive;
     private String name;
     private String surname;
     private String username;
