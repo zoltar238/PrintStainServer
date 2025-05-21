@@ -2,10 +2,15 @@ package com.github.zoltar238.PrintStainServer.controller;
 
 import com.github.zoltar238.PrintStainServer.dto.PersonDto;
 import com.github.zoltar238.PrintStainServer.dto.ResponseApi;
+import com.github.zoltar238.PrintStainServer.security.jwt.JwtUtils;
 import com.github.zoltar238.PrintStainServer.service.PersonService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 public class PersonController {
 
     private final PersonService personService;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     public PersonController(PersonService personService) {
         this.personService = personService;
@@ -25,7 +33,12 @@ public class PersonController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseApi<String>> deletePerson(@RequestParam String username) {
-        return personService.deleteUser(username);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseApi<String>> deletePerson(@NotNull HttpServletRequest request) {
+        // Get the user id from the token
+        String tokenHeader = request.getHeader("Authorization");
+        String token = tokenHeader.substring(7);
+        Long posterId = jwtUtils.getIdFromToken(token);
+        return personService.deleteUser(posterId);
     }
-}   
+}

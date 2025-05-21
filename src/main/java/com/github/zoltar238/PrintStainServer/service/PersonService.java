@@ -13,7 +13,7 @@ public interface PersonService {
 
     ResponseEntity<ResponseApi<String>> registerPerson(PersonDto personDTO);
 
-    ResponseEntity<ResponseApi<String>> deleteUser(String username);
+    ResponseEntity<ResponseApi<String>> deleteUser(Long userId);
 
     ResponseEntity<ResponseApi<String>> updatePassword();
 

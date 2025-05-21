@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.personRepository = personRepository;
     }
 
-    // todo: improve error handling when login in
     // when user tries to authenticate
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {

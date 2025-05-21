@@ -111,24 +111,24 @@ public class PersonServiceImp implements PersonService {
     }
 
     @Override
-    public ResponseEntity<ResponseApi<String>> deleteUser(String username) {
-        log.info("Attempting to delete user with username: {}", username);
+    public ResponseEntity<ResponseApi<String>> deleteUser(Long userId) {
+        log.info("Attempting to delete user with username: {}", userId);
 
         try {
             // Delete user
-            PersonEntity person = personRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+            PersonEntity person = personRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
             person.setPreDeleteUsername(person.getUsername());
-            person.setUsername("deleted_user_" + username);
-            person.setEmail("deleted_user_" + username + "@deleted.com");
-            person.setPassword("deleted_user_" + username);
+            person.setUsername("deleted_user_" + userId);
+            person.setEmail("deleted_user_" + userId + "@deleted.com");
+            person.setPassword("deleted_user_" + userId);
             person.setIsActive(false);
             personRepository.save(person);
 
-            log.info("Successfully deleted user: {}", person.getPreDeleteUsername());
+            log.info("Successfully deleted user: {} with id: {}", person.getPreDeleteUsername(), userId);
 
             return ResponseEntity.ok(new ResponseApi<>(true, "User deleted successfully", "User deleted successfully"));
         } catch (Exception e) {
-            log.error("Unexpected error deleting user with username : {} {}", username,  e.getMessage(), e);
+            log.error("Unexpected error deleting user with id : {} {}", userId,  e.getMessage(), e);
             throw new UnexpectedException("Unexpected error while deleting user");
         }
     }
