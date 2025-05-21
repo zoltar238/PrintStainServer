@@ -32,6 +32,11 @@ public class PersonController {
         return personService.registerPerson(personDTO);
     }
 
+    @PostMapping("/resetPassword")
+    public ResponseEntity<ResponseApi<String>> resetPassword(@Valid @RequestBody PersonDto personDTO) {
+        return personService.resetPassword(personDTO);
+    }
+
     @DeleteMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseApi<String>> deletePerson(@NotNull HttpServletRequest request) {

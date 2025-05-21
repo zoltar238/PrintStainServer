@@ -111,6 +111,31 @@ public class PersonServiceImp implements PersonService {
     }
 
     @Override
+    public ResponseEntity<ResponseApi<String>> resetPassword(PersonDto personDTO) {
+        log.info("Attempting to reset password for user with email: {}", personDTO.getEmail());
+
+        try {
+            // Find user by email
+            PersonEntity person = personRepository.findByUsername(personDTO.getUsername())
+                    .orElseThrow(() -> new UserNotFoundException("User not found with username: " + personDTO.getUsername()));
+
+            // Update password
+            person.setPassword(passwordEncoder.encode(personDTO.getPassword()));
+            personRepository.save(person);
+
+            log.info("Password reset successfully for user with email: {}", personDTO.getEmail());
+            return ResponseEntity.ok(ResponseBuilder.buildResponse(true, "Password reset successfully", "Password reset successfully"));
+
+        } catch (UserNotFoundException e) {
+            log.error("Error resetting password: {}", e.getMessage(), e);
+            throw e; // Re-throw to be handled by the global exception handler
+        } catch (Exception e) {
+            log.error("Unexpected error resetting password for email {}: {}", personDTO.getEmail(), e.getMessage(), e);
+            throw new UnexpectedException("Unexpected error while resetting password");
+        }
+    }
+
+    @Override
     public ResponseEntity<ResponseApi<String>> deleteUser(Long userId) {
         log.info("Attempting to delete user with username: {}", userId);
 
@@ -128,7 +153,7 @@ public class PersonServiceImp implements PersonService {
 
             return ResponseEntity.ok(new ResponseApi<>(true, "User deleted successfully", "User deleted successfully"));
         } catch (Exception e) {
-            log.error("Unexpected error deleting user with id : {} {}", userId,  e.getMessage(), e);
+            log.error("Unexpected error deleting user with id : {} {}", userId, e.getMessage(), e);
             throw new UnexpectedException("Unexpected error while deleting user");
         }
     }

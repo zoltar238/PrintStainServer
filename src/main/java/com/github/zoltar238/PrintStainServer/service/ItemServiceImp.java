@@ -75,6 +75,7 @@ public class ItemServiceImp implements ItemService {
                 // Get poster data
                 PersonDto personDto = PersonDto.builder()
                         .name(item.getPerson().getName())
+                        .username(item.getPerson().getUsername())
                         .personId(item.getPerson().getPersonId())
                         .isActive(item.getPerson().getIsActive())
                         .build();
