@@ -46,6 +46,10 @@ public class ItemServiceImp implements ItemService {
     @Value("${downloads.storage.location}")
     private String downloadPath;
 
+    @Value("${image.storage.location}")
+    private String imageStorageLocation;
+
+
     public ItemServiceImp(ItemRepository itemRepository, PersonService personService, ImageService imageService) {
         this.itemRepository = itemRepository;
         this.personService = personService;
@@ -125,7 +129,11 @@ public class ItemServiceImp implements ItemService {
         List<ImageEntity> images = new ArrayList<>();
         for (ImageDto imageDto : itemDto.getImages()) {
             try {
-                String url = "src/main/resources/images/" + System.currentTimeMillis() + ".jpg";
+                // Create image directory if it doesn´t exists
+                if (!new File(imageStorageLocation).exists()){
+                    new File(imageStorageLocation).mkdirs();
+                }
+                String url = imageStorageLocation + System.currentTimeMillis() + ".jpg";
                 ImageTransformer.saveImageToDisk(url, imageDto.getBase64Image());
                 ImageEntity imageEntity = ImageEntity.builder()
                         .url(url)
@@ -222,13 +230,18 @@ public class ItemServiceImp implements ItemService {
                     new File(previousFiles).delete();
                 }
 
+                // Create files directory if it doesn´t exists
+                if (!new File(downloadPath).exists()){
+                    new File(downloadPath).mkdirs();
+                }
+
                 // Update item
                 item.get().setFileStructure(fileStructure);
-                item.get().setFilesUrl(downloadPath + "/" + file.getOriginalFilename());
+                item.get().setFilesUrl(downloadPath + file.getOriginalFilename());
                 itemRepository.save(item.get());
 
                 // save files locally
-                file.transferTo(new java.io.File(downloadPath + "/" + file.getOriginalFilename()));
+                file.transferTo(new java.io.File(downloadPath + file.getOriginalFilename()));
 
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(ResponseBuilder.buildResponse(true, "Files uploaded successfully", "Files uploaded successfully"));
