@@ -25,7 +25,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         //get user from database
         PersonEntity personEntity = personRepository
-                .findByName(username)
+                .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
 
         Collection<? extends GrantedAuthority> authorities =
