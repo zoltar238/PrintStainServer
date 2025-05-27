@@ -9,8 +9,6 @@ import java.util.Optional;
 @Repository
 public interface PersonRepository extends CrudRepository<PersonEntity, Long> {
 
-    Optional<PersonEntity> findByName(String name);
-
     Optional<PersonEntity> findByUsername(String username);
 
     Optional<PersonEntity> findByPreDeleteUsername(String username);
