@@ -18,7 +18,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> handleUserConflict(EmailAlreadyExistsException ex) {
+    public ResponseEntity<Object> handleUserConflict(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ResponseBuilder.buildResponse(false,
+                        ex.getMessage(),
+                        ex.getMessage()));
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<Object> handleUserConflict(RoleNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResponseBuilder.buildResponse(false,
                         ex.getMessage(),
