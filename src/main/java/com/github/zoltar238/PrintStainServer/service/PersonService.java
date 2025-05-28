@@ -16,8 +16,6 @@ public interface PersonService {
 
     ResponseEntity<ResponseApi<String>> deleteUser(Long userId);
 
-    ResponseEntity<ResponseApi<String>> updatePassword();
-
     Optional<PersonEntity> getPersonById(Long id);
 
     ResponseEntity<ResponseApi<String>> resetPassword(@Valid PersonDto personDTO);
