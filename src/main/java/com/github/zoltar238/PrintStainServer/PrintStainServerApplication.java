@@ -1,6 +1,5 @@
 package com.github.zoltar238.PrintStainServer;
 
-import com.github.zoltar238.PrintStainServer.service.ItemServiceImp;
 import com.github.zoltar238.PrintStainServer.utils.OsChecker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
