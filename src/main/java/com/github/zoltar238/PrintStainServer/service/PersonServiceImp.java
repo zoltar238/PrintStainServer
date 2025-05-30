@@ -42,7 +42,7 @@ public class PersonServiceImp implements PersonService {
         String processCode = "000001";
         String processDescription = "User registration";
 
-        log.info("[MSG-{}: {} - Starting process] -> Attempting to register user with username: \"{}\", email: \"{}\", roles: {}.",
+        log.info("[MSG-{}: {} - Starting process] -> Attempting to register user with username: '{}', email: '{}', roles: '{}'.",
                 processCode, processDescription, personDTO.getUsername(), personDTO.getEmail(), personDTO.getRoles());
 
         try {

@@ -7,6 +7,7 @@ import com.github.zoltar238.PrintStainServer.persistence.entity.ItemEntity;
 import com.github.zoltar238.PrintStainServer.persistence.repository.ImageRepository;
 import com.github.zoltar238.PrintStainServer.utils.ImageTransformer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,6 +17,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class ImageServiceImpl implements ImageService {
+
+    @Value("${image.storage.location}")
+    private String imageStorageLocation;
 
     private final ImageRepository imageRepository;
 
@@ -53,7 +57,7 @@ public class ImageServiceImpl implements ImageService {
             try {
                 // Weed out empty images
                 if (imageDto.getBase64Image().length() > 90) {
-                    String url = "src/main/resources/images/" + System.currentTimeMillis() + ".jpg";
+                    String url = imageStorageLocation + System.currentTimeMillis() + ".jpg";
                     ImageEntity newImage = imageRepository.save(ImageEntity.builder().
                             url(url).
                             item(item).
