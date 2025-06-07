@@ -55,7 +55,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/healthcheck", "person/register", "/person/resetPassword").permitAll()
+                        .requestMatchers("person/register", "/person/resetPassword").permitAll()
                         .requestMatchers(
                                 "/person/delete",
                                 "/item/getAllItems",
@@ -69,7 +69,6 @@ public class SecurityConfig {
                                 "/sale/deleteSale",
                                 "/sale/updateSale").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                //.formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                 .sessionManagement(session -> session
                         .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::migrateSession)
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
