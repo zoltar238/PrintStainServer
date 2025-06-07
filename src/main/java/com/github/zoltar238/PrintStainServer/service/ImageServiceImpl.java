@@ -28,8 +28,8 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public void saveImages(List<ImageEntity> images) {
-        imageRepository.saveAll(images);
+    public Iterable<ImageEntity> saveImages(List<ImageEntity> images) {
+        return imageRepository.saveAll(images);
     }
 
     @Override

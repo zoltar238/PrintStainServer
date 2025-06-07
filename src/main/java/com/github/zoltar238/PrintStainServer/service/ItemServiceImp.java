@@ -29,8 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
@@ -38,6 +36,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -163,15 +162,24 @@ public class ItemServiceImp implements ItemService {
                     throw new ImageProcessingException("Unexpected error while saving images to disk");
                 }
             }
-            imageService.saveImages(images);
+            List<ImageEntity> savedImages = StreamSupport.stream(imageService.saveImages(images).spliterator(), false)
+                    .collect(Collectors.toList());
+
 
             // Update item with images
-            item.setImages(images);
+            item.setImages(savedImages);
             itemRepository.save(item);
 
             // Prepare response DTO
             itemDto.setItemId(item.getItemId());
-            // ... (Rest of DTO preparation is fine)
+
+            itemDto.getImages().clear();
+            for (ImageEntity image : item.getImages()) {
+                itemDto.getImages().add(ImageDto.builder()
+                        .imageId(image.getImageId())
+                        .base64Image(ImageTransformer.transformImageToBase64(image.getUrl()))
+                        .build());
+            }
 
             log.info("[MSG-{}: {} - End of process] -> Successfully posted item with new ID: {}.", processCode, processDescription, item.getItemId());
             return ResponseEntity.status(HttpStatus.OK)

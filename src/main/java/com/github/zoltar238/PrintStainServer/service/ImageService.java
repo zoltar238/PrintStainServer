@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface ImageService {
 
-    void saveImages(List<ImageEntity> image);
+    Iterable<ImageEntity> saveImages(List<ImageEntity> image);
 
     void updateOrInsertImages(ItemEntity item, List<ImageDto> imageDtos);
 }
