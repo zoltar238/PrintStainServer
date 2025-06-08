@@ -172,7 +172,18 @@ public class ItemServiceImp implements ItemService {
 
             // Prepare response DTO
             itemDto.setItemId(item.getItemId());
+            itemDto.setPostDate(item.getPostDate());
 
+            // Add poster info
+            PersonDto posterDto = PersonDto.builder()
+                    .personId(poster.getPersonId())
+                    .name(poster.getName())
+                    .username(poster.getUsername())
+                    .isActive(poster.getIsActive())
+                    .build();
+            itemDto.setPerson(posterDto);
+
+            // Add images to dto
             itemDto.getImages().clear();
             for (ImageEntity image : item.getImages()) {
                 itemDto.getImages().add(ImageDto.builder()
@@ -249,6 +260,9 @@ public class ItemServiceImp implements ItemService {
                         .base64Image(ImageTransformer.transformImageToBase64(image.getUrl()))
                         .build());
             }
+
+            // set post date
+            itemDto.setPostDate(itemEntity.getPostDate());
 
             log.info("[MSG-{}: {} - End of process] -> Successfully updated item with ID: {}.", processCode, processDescription, itemDto.getItemId());
             return ResponseEntity.status(HttpStatus.OK)
