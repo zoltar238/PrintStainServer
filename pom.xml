@@ -11,7 +11,7 @@
     <groupId>com.github.zoltar238</groupId>
     <artifactId>PrintStainServer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>PrintStainServer</name>
     <description>Demo project for Spring Boot</description>
     <url/>
@@ -141,6 +141,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <applicationDirectory>/home/andrei/IdeaProjects/PrintStainServer/build</applicationDirectory>
                 </configuration>
             </plugin>
         </plugins>
